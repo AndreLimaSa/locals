@@ -7,12 +7,21 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 dotenv.config();
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
-app.use(cors()); // Middleware to enable CORS
+app.use(
+  cors({
+    origin: "https://locals-v1.onrender.com/", // Update this to your actual frontend URL
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
@@ -160,7 +169,7 @@ app.post("/login", async (req, res) => {
       // Send token and redirect URL
       res.json({
         accessToken: token,
-        redirectUrl: "http://localhost:3000/index.html",
+        redirectUrl: "https://locals-v1.onrender.com/index.html", // Update this to your actual frontend URL
       });
     } else {
       res.status(401).send("Not Allowed");
@@ -302,6 +311,6 @@ app.get("/favorites", authenticateToken, async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log(`Server is running on port 3000`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
