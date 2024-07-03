@@ -7,15 +7,11 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
+const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 dotenv.config();
 
-const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(
   cors({
