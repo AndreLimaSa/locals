@@ -7,24 +7,25 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 dotenv.config();
 
-app.use(express.json()); // Middleware to parse JSON bodies
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
 app.use(
   cors({
     origin: "https://locals-v1.onrender.com/", // Update this to your actual frontend URL
   })
 );
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json()); // Middleware to parse URL-encoded bodies
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection URIs
-const locationsURI = "mongodb://localhost:27017/locationsdatabase";
-const usersURI = "mongodb://localhost:27017/usersdatabase";
+// MongoDB connection URIs from environment variables
+const locationsURI = process.env.LOCATIONS_URI;
+const usersURI = process.env.USERS_URI;
 
 // Connect to MongoDB for locations
 const locationsConnection = mongoose.createConnection(locationsURI, {
@@ -57,9 +58,10 @@ const Location = locationsConnection.model(
   })
 );
 
-// Create a new connection for users
+// Connect to MongoDB for users
 const usersConnection = mongoose.createConnection(usersURI, {
   useUnifiedTopology: true,
+  useNewUrlParser: true,
 });
 
 usersConnection.on("connected", () => {
@@ -82,8 +84,8 @@ const userSchema = new mongoose.Schema({
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }], // Reference to Location model
 });
 
+// Create User model using the usersConnection
 const User = usersConnection.model("User", userSchema);
-
 // Function to generate JWT token
 function generateToken(user) {
   return jwt.sign(
