@@ -7,25 +7,24 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+dotenv.config();
+
+app.use(express.json()); // Middleware to parse JSON bodies
 app.use(
   cors({
     origin: "https://locals-v1.onrender.com/", // Update this to your actual frontend URL
   })
 );
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection URIs from environment variables
-const locationsURI = process.env.LOCATIONS_URI;
-const usersURI = process.env.USERS_URI;
+// MongoDB connection URIs
+const locationsURI = process.env.LOCATIONS_DB_URI;
+const usersURI = process.env.USERS_DB_URI;
 
 // Connect to MongoDB for locations
 const locationsConnection = mongoose.createConnection(locationsURI, {
@@ -38,7 +37,7 @@ locationsConnection.on("connected", () => {
 });
 
 locationsConnection.on("error", (err) => {
-  console.error("Connection error:", err);
+  console.error("Connection error (locations):", err);
 });
 
 // Create Location model using the locationsConnection
@@ -69,23 +68,20 @@ usersConnection.on("connected", () => {
 });
 
 usersConnection.on("error", (err) => {
-  console.error("Connection error:", err);
-});
-
-usersConnection.on("disconnected", () => {
-  console.log("Disconnected from MongoDB (users)");
-});
-
-// Define the schema for a user
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }], // Reference to Location model
+  console.error("Connection error (users):", err);
 });
 
 // Create User model using the usersConnection
-const User = usersConnection.model("User", userSchema);
+const User = usersConnection.model(
+  "User",
+  new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }], // Reference to Location model
+  })
+);
+
 // Function to generate JWT token
 function generateToken(user) {
   return jwt.sign(
