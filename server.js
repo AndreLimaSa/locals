@@ -23,8 +23,8 @@ app.use(bodyParser.json()); // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB connection URIs
-const locationsURI = process.env.LOCATIONS_DB_URI;
-const usersURI = process.env.USERS_DB_URI;
+const locationsURI = process.env.LOCATIONS_URI;
+const usersURI = process.env.USERS_URI;
 
 // Connect to MongoDB for locations
 const locationsConnection = mongoose.createConnection(locationsURI, {
