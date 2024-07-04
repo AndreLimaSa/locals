@@ -549,7 +549,7 @@ function showResults() {
 }
 
 function login() {
-  window.open("https://locals-v5-api.onrender.com/register", "_blank");
+  window.open("https://locals-v1.onrender.com/register", "_blank");
 }
 
 document
