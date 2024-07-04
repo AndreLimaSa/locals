@@ -1,6 +1,7 @@
 async function fetchLocations() {
+  const apiUrl = "https://locals-v5-api.onrender.com/locations"; // Update with your actual deployed server URL
   try {
-    const response = await fetch("http://localhost:3000/locations");
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -11,7 +12,6 @@ async function fetchLocations() {
     return [];
   }
 }
-
 let map;
 let markerClusterGroup;
 
@@ -198,21 +198,6 @@ function updateDistanceValue(value) {
   filterLocations(); // Call filterLocations whenever the slider value changes
 }
 
-// Function to fetch locations from the backend
-async function fetchLocations() {
-  try {
-    const response = await fetch("http://localhost:3000/locations");
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const locations = await response.json();
-    return locations;
-  } catch (error) {
-    console.error("Failed to fetch locations:", error);
-    return [];
-  }
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const distanceSliderValue = document.getElementById("distanceSlider").value;
   console.log(
@@ -390,7 +375,7 @@ async function likeLocation(locationId) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/locations/${locationId}/like`,
+      `https://locals-v5-api.onrender.com/locations/${locationId}/like`,
       {
         method: "POST",
         headers: {
@@ -423,7 +408,7 @@ async function dislikeLocation(locationId) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/locations/${locationId}/dislike`,
+      `https://locals-v5-api.onrender.com/locations/${locationId}/dislike`,
       {
         method: "POST",
         headers: {
@@ -452,13 +437,16 @@ async function saveFavorite(locationId) {
       throw new Error("User is not authenticated");
     }
 
-    const response = await fetch(`/favorites/${locationId}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `https://locals-v5-api.onrender.com/favorites/${locationId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -562,7 +550,7 @@ function showResults() {
 }
 
 function login() {
-  window.open("http://localhost:3000/register", "_blank");
+  window.open("https://locals-v5-api.onrender.com/register", "_blank");
 }
 
 document
@@ -575,17 +563,20 @@ document
     formData.forEach((value, key) => (data[key] = value));
 
     try {
-      const response = await fetch("/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        "https://locals-v5-api.onrender.com/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
         console.log("User registered successfully");
-        window.location.href = "/login"; // Redirect to login page
+        window.location.href = "https://locals-v1.onrender.com/login"; // Redirect to login page
       } else {
         console.error("Registration failed");
       }
@@ -604,7 +595,7 @@ document
     formData.forEach((value, key) => (data[key] = value));
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("https://locals-v5-api.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -614,7 +605,7 @@ document
 
       if (response.ok) {
         console.log("User logged in successfully");
-        window.location.href = "/"; // Redirect to home page
+        window.location.href = "https://locals-v1.onrender.com"; // Redirect to home page
       } else {
         console.error("Login failed");
       }
