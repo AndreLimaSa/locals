@@ -377,7 +377,7 @@ async function likeLocation(locationId) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/locations/${locationId}/like`,
+      `https://locals-v5-api.onrender.com/locations/${locationId}/like`,
       {
         method: "POST",
         headers: {
@@ -410,7 +410,7 @@ async function dislikeLocation(locationId) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/locations/${locationId}/dislike`,
+      `https://locals-v5-api.onrender.com/locations/${locationId}/dislike`,
       {
         method: "POST",
         headers: {
@@ -439,7 +439,7 @@ async function saveFavorite(locationId) {
       throw new Error("User is not authenticated");
     }
 
-    const response = await fetch(`/favorites/${locationId}`, {
+    const response = await fetch(`https://locals-v5-api.onrender.com/favorites/${locationId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
