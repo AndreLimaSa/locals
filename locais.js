@@ -549,7 +549,7 @@ function showResults() {
 }
 
 function login() {
-  window.open("http://localhost:3000/register", "_blank");
+  window.open("https://locals-v5-api.onrender.com/register", "_blank");
 }
 
 document
@@ -562,7 +562,7 @@ document
     formData.forEach((value, key) => (data[key] = value));
 
     try {
-      const response = await fetch("/register", {
+      const response = await fetch("https://locals-v5-api.onrender.com/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -572,7 +572,7 @@ document
 
       if (response.ok) {
         console.log("User registered successfully");
-        window.location.href = "/login"; // Redirect to login page
+        window.location.href = "https://locals-v1.onrender.com/login"; // Redirect to login page
       } else {
         console.error("Registration failed");
       }
@@ -591,7 +591,7 @@ document
     formData.forEach((value, key) => (data[key] = value));
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("https://locals-v5-api.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -601,7 +601,7 @@ document
 
       if (response.ok) {
         console.log("User logged in successfully");
-        window.location.href = "/"; // Redirect to home page
+        window.location.href = "https://locals-v1.onrender.com"; // Redirect to home page
       } else {
         console.error("Login failed");
       }
