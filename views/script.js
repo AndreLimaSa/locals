@@ -7,7 +7,7 @@ document
     const password = document.getElementById("password").value;
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("https://locals-v5-api.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +38,7 @@ async function likeLocation(locationId) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/locations/${locationId}/like`,
+      `https://locals-v5-api.onrender.com/locations/${locationId}/like`,
       {
         method: "POST",
         headers: {
