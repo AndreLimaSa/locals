@@ -7,7 +7,7 @@
   <script>
     async function handleRegister(event) {
       event.preventDefault();
-      
+
       const name = document.getElementById("name").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -23,7 +23,7 @@
 
         if (response.ok) {
           console.log("User registered successfully");
-          window.location.href = "https://locals-v1.onrender.com/login"; // Redirect to login page
+          window.location.href = "/login"; // Redirect to login page
         } else {
           const errorText = await response.text();
           console.error("Registration failed:", errorText);
