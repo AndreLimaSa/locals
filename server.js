@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
-const session = require("express-session");
 const bodyParser = require("body-parser");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -12,14 +11,21 @@ const PORT = process.env.PORT || 3000;
 
 dotenv.config();
 
-app.use(express.json()); // Middleware to parse JSON bodies
-app.use(
-  cors({
-    origin: "https://locals-v1.onrender.com/", // Update this to your actual frontend URL
-  })
-);
+const allowedOrigins = ["https://locals-v1.onrender.com"]; // Add more origins as needed
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json()); // Middleware to parse URL-encoded bodies
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB connection URIs
@@ -40,7 +46,6 @@ locationsConnection.on("error", (err) => {
   console.error("Connection error (locations):", err);
 });
 
-// Create Location model using the locationsConnection
 const Location = locationsConnection.model(
   "Location",
   new mongoose.Schema({
@@ -71,18 +76,16 @@ usersConnection.on("error", (err) => {
   console.error("Connection error (users):", err);
 });
 
-// Create User model using the usersConnection
 const User = usersConnection.model(
   "User",
   new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }], // Reference to Location model
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }],
   })
 );
 
-// Function to generate JWT token
 function generateToken(user) {
   return jwt.sign(
     { id: user._id, email: user.email },
@@ -91,7 +94,6 @@ function generateToken(user) {
   );
 }
 
-// Middleware to verify token and authenticate requests
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -100,7 +102,6 @@ function authenticateToken(req, res, next) {
     return res.status(401).send("Unauthorized");
   }
 
-  // Log the token here
   console.log("Received token:", token);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
@@ -109,15 +110,14 @@ function authenticateToken(req, res, next) {
       return res.status(403).send("Forbidden");
     }
     req.user = user;
-    next(); // Pass the request to the next middleware or route handler
+    next();
   });
 }
 
-// Registration route
 app.post("/register", async (req, res) => {
   try {
     console.log("Registration request received");
-    console.log("Request body:", req.body); // Log request body for debugging
+    console.log("Request body:", req.body);
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = new User({
@@ -127,7 +127,7 @@ app.post("/register", async (req, res) => {
     });
 
     await newUser.save();
-    console.log("New user registered:", newUser); // Log the new user
+    console.log("New user registered:", newUser);
 
     res.redirect("/login");
   } catch (err) {
@@ -146,24 +146,22 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     console.log("Login request received");
-    console.log("Request body:", req.body); // Log request body for debugging
+    console.log("Request body:", req.body);
 
     const user = await User.findOne({ email: req.body.email });
-    console.log("User found:", user); // Log the user object
+    console.log("User found:", user);
 
     if (!user) {
       return res.status(400).send("Cannot find user");
     }
 
     if (await bcrypt.compare(req.body.password, user.password)) {
-      // Generate token
       const token = generateToken(user);
-      console.log("Generated token:", token); // Log the token
+      console.log("Generated token:", token);
 
-      // Send token and redirect URL
       res.json({
         accessToken: token,
-        redirectUrl: "https://locals-v1.onrender.com/index.html", // Update this to your actual frontend URL
+        redirectUrl: "https://locals-v1.onrender.com/index.html",
       });
     } else {
       res.status(401).send("Not Allowed");
@@ -174,7 +172,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Endpoint to get all locations
 app.get("/locations", async (req, res) => {
   try {
     const locations = await Location.find();
@@ -185,7 +182,6 @@ app.get("/locations", async (req, res) => {
   }
 });
 
-// Endpoint to like a location
 app.post("/locations/:locationId/like", authenticateToken, async (req, res) => {
   const locationId = req.params.locationId;
   try {
@@ -206,7 +202,6 @@ app.post("/locations/:locationId/like", authenticateToken, async (req, res) => {
   }
 });
 
-// Endpoint to dislike a location
 app.post(
   "/locations/:locationId/dislike",
   authenticateToken,
@@ -231,28 +226,24 @@ app.post(
   }
 );
 
-// Route to save a favorite location
 app.post("/favorites/:locationId", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const locationId = req.params.locationId;
 
-    // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    // Check if the location is already in favorites
     if (user.favorites.includes(locationId)) {
       return res.status(400).send("Location already in favorites");
     }
 
-    // Add the location to favorites
     user.favorites.push(locationId);
     await user.save();
 
-    console.log("Favorites after saving:", user.favorites); // Log the favorites array after saving
+    console.log("Favorites after saving:", user.favorites);
 
     res.status(200).json({ message: "Location saved to favorites" });
   } catch (error) {
@@ -261,12 +252,10 @@ app.post("/favorites/:locationId", authenticateToken, async (req, res) => {
   }
 });
 
-// Route for the main index.html file
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// Serve static files from the root directory
 app.use(express.static(__dirname));
 
 app.get("/login", (req, res) => {
@@ -281,7 +270,6 @@ app.get("/favorites.html", (req, res) => {
   res.sendFile(path.join(__dirname, "favorites.html"));
 });
 
-// Route to get favorite locations
 app.get("/favorites", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -296,7 +284,7 @@ app.get("/favorites", authenticateToken, async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    console.log("Populated favorites:", user.favorites); // Log the populated favorites
+    console.log("Populated favorites:", user.favorites);
 
     res.status(200).json(user.favorites);
   } catch (error) {
