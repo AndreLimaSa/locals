@@ -149,11 +149,13 @@ app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
+      console.log("User not found");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log("Invalid password");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
