@@ -30,9 +30,9 @@
           // Open the app in a new tab
           window.open(redirectUrl, '_blank');
         } else {
-          const errorData = await response.json();
-          console.error("Login failed:", errorData);
-          alert("Login failed: " + (errorData.message || "Unknown error"));
+          const errorText = await response.text(); // Read response as text
+          console.error("Login failed:", errorText);
+          alert("Login failed: " + errorText);
         }
       } catch (error) {
         console.error("Error during login:", error);
@@ -53,4 +53,3 @@
   </form>
 </body>
 </html>
-
