@@ -1,6 +1,7 @@
 async function fetchLocations() {
+  const apiUrl = "https://locals-v5-api.onrender.com/locations"; // Update with your actual deployed server URL
   try {
-    const response = await fetch("http://localhost:3000/locations");
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
