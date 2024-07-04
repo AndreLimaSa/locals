@@ -12,7 +12,6 @@ async function fetchLocations() {
     return [];
   }
 }
-
 let map;
 let markerClusterGroup;
 
@@ -198,7 +197,6 @@ function updateDistanceValue(value) {
   console.log("Distance slider value (updateDistanceValue):", value); // Log distance slider value when it changes
   filterLocations(); // Call filterLocations whenever the slider value changes
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   const distanceSliderValue = document.getElementById("distanceSlider").value;
@@ -439,13 +437,16 @@ async function saveFavorite(locationId) {
       throw new Error("User is not authenticated");
     }
 
-    const response = await fetch(`https://locals-v5-api.onrender.com/favorites/${locationId}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `https://locals-v5-api.onrender.com/favorites/${locationId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -562,13 +563,16 @@ document
     formData.forEach((value, key) => (data[key] = value));
 
     try {
-      const response = await fetch("https://locals-v5-api.onrender.com/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        "https://locals-v5-api.onrender.com/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
         console.log("User registered successfully");
