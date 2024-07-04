@@ -144,31 +144,29 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    console.log("Login request received");
-    console.log("Request body:", req.body);
-
-    const user = await User.findOne({ email: req.body.email });
-    console.log("User found:", user);
-
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send("Cannot find user");
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if (await bcrypt.compare(req.body.password, user.password)) {
-      const token = generateToken(user);
-      console.log("Generated token:", token);
-
-      res.json({
-        accessToken: token,
-        redirectUrl: "https://locals-v1.onrender.com/index.html",
-      });
-    } else {
-      res.status(401).send("Not Allowed");
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.json({
+      accessToken: token,
+      redirectUrl: "https://locals-v1.onrender.com",
+    });
   } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).send();
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
