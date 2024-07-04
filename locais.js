@@ -199,20 +199,6 @@ function updateDistanceValue(value) {
   filterLocations(); // Call filterLocations whenever the slider value changes
 }
 
-// Function to fetch locations from the backend
-async function fetchLocations() {
-  try {
-    const response = await fetch("http://localhost:3000/locations");
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const locations = await response.json();
-    return locations;
-  } catch (error) {
-    console.error("Failed to fetch locations:", error);
-    return [];
-  }
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   const distanceSliderValue = document.getElementById("distanceSlider").value;
